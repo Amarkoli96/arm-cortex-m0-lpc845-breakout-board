@@ -1,0 +1,158 @@
+#include "wwdt.h"
+#include "syscon.h"
+#include "utilities.h"
+
+void delay(unsigned int count)
+{
+	int num ;
+	while(count--)
+	{
+		num = 2777776;
+		while(num--);
+	}
+}	
+/*
+// watch dog timer for 50ms duration
+int main(void)
+{
+  uint32_t delay = 10000;
+	 while(delay--);
+  LPC_SYSCON->SYSAHBCLKCTRL0 |= (WWDT)|(GPIO0);// Turn on peripheral clocks to relevant peripherals.
+  Config_LED(LED_GREEN);
+   
+  LED_On(LED_GREEN); // Turn on the green LED.
+  LPC_SYSCON->PDRUNCFG &= ~(WDTOSC_PD);// Apply power to the watchdog oscillator.
+  
+  LPC_SYSCON->WDTOSCCTRL = (1<<WDTOSC_FREQSEL)|(11<<WDTOSC_DIVSEL);// Configure the WDCLK frequency in the SYSCON module.
+  
+  LPC_WWDT->TC =0x10A; //Configure the WWDT
+  LPC_WWDT->MOD = (0<<WDTOF)|(1<<WDEN)|(1<<WDRESET);
+
+
+	
+  LPC_WWDT->FEED = 0xAA; // Do a feed sequence to enable the WWDT.
+  LPC_WWDT->FEED = 0x55;
+ 
+		
+  while(1);
+} 
+*/
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+//Generating 10ms using self wakeup timer WKT
+#define FREQ 500
+#define WKT_TIME     ((( 30000000)/(16*FREQ)) - 1)   // default set to 10milli second @ 30 MHz 
+#define DIVIDED_IRC   0
+#define WKT_CLKSEL    0
+#define WKT_ALARMFLAG 1
+
+
+uint8_t duty;
+
+int main(void) 
+{
+  LPC_SYSCON->SYSAHBCLKCTRL0 |= (WKT|MRT|GPIO);// Enable clocks to relevant peripherals 
+  LPC_SYSCON->PRESETCTRL0 &= (WKT_RST_N); // Configure the WKT ...
+  LPC_SYSCON->PRESETCTRL0 |= ~(WKT_RST_N); // Give the  module a reset
+
+  LPC_WKT->CTRL = (DIVIDED_IRC<<WKT_CLKSEL);// WKT clock source is divided IRC (IRC/16)
+ 
+  NVIC_EnableIRQ(WKT_IRQn);// Enable the WKT interrupt in the NVIC
+	
+	LPC_WKT->COUNT = WKT_TIME;//feed count value
+	Config_LED(LED_GREEN);
+	while(1);
+
+}	
+	
+	
+void WKT_IRQHandler(void) 
+{
+	static uint8_t count;
+	uint32_t delay = 10000;
+	LPC_WKT->CTRL |= 1<<WKT_ALARMFLAG; // Clear the interrupt flag	
+	
+//	while(delay--);
+	
+  LPC_WKT->COUNT = WKT_TIME;//load counter value
+	if(count<9)
+	{
+		count++;
+	}
+	else{
+		count = 0;
+		LED_Off(LED_GREEN);//turn off LED
+	}
+	
+	if(duty == count)
+	{
+		LED_On(LED_GREEN); // Turn on the green LED.
+	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//motor control logic
+
+	void CLOCKWISE(unsigned int count)
+	{
+		LPC_GPIO_PORT->SET0 = 0x00008000;
+	   while(count--);
+		LPC_GPIO_PORT->CLR0 = 0x00008000;
+	}
+	
+	void ANTICLOCKWISE(unsigned int count)
+	{
+		LPC_GPIO_PORT->SET0 = 0x00004000;
+	   while(count--);
+		LPC_GPIO_PORT->CLR0 = 0x00004000;
+	}
+
+
+	*/
+/*int main(void)
+{ 
+	Config_LED(LED_GREEN);
+	LPC_SYSCON->SYSAHBCLKCTRL0 |= GPIO0 ;// Enable clock to GPIO
+  LPC_GPIO_PORT->DIR0 = 0xffffffff;          // set P0.15 to output
+  while(1)
+	{
+			LPC_GPIO_PORT->SET0 = 0x00005000;   //P0.15 = HIGH
+			//LED_On(LED_GREEN);
+			delay(1);
+		LPC_GPIO_PORT->CLR0 = 0x00008000;   //P0.15 = LOW
+			//LED_Off(LED_GREEN);
+		//	delay(1);
+	}
+}*/
+/*	
+////////////////////////////////////////////////////////////////////
+//switch control logic
+int main(void)
+{ 
+	int flag = 1 ;
+	Config_LED(LED_GREEN);
+	LPC_SYSCON->SYSAHBCLKCTRL0 |= GPIO0 ;// Enable clock to GPIO
+  LPC_GPIO_PORT->DIR0 = 0x00000000;          // set P0.15 to input
+  while(1)
+	{
+		 rflag = LPC_GPIO_PORT->B0[10];
+		 gflag = LPC_GPIO_PORT->B0[11];
+		 if(rflag == 1) 
+		 {
+		  LED_On(LED_RED);
+		 }
+		 elseif(gflag == 1)
+		 {
+			LED_On(LED_GREEN);
+		 }
+		 else
+		 {
+			LED_Off(LED_RED);
+			LED1_OFF(LED_GREEN);
+		 }
+	}
+ 
+}*/
+	
